@@ -1,0 +1,58 @@
+import type { Testimonial } from '@/lib/types'
+
+export const testimonials: Testimonial[] = [
+  {
+    id: 'test_001',
+    name: 'Lucas Ferreira',
+    location: 'Manaus, AM',
+    rating: 5,
+    text: 'Quando vi essa camiseta sabia que era mais do que uma roupa. Uso com orgulho porque representa o que eu sou. Qualidade incrível, entrega rápida.',
+    productName: 'Camiseta Oversized Chamas',
+    avatarInitials: 'LF',
+  },
+  {
+    id: 'test_002',
+    name: 'Ana Clara',
+    location: 'Belém, PA',
+    rating: 5,
+    text: 'A polo é simplesmente perfeita. Bordado impecável, tecido premium. Todo mundo pergunta onde comprei. Orgulho de representar o ministério.',
+    productName: 'Polo Região Norte',
+    avatarInitials: 'AC',
+  },
+  {
+    id: 'test_003',
+    name: 'Rafael Mendes',
+    location: 'Porto Velho, RO',
+    rating: 5,
+    text: 'Comprei o Kit Fogo e foi um presente de Deus. A bíblia é linda, o devocional transformador, e a camiseta é a melhor que já usei. Valeu cada centavo.',
+    productName: 'Kit Fogo',
+    avatarInitials: 'RM',
+  },
+  {
+    id: 'test_004',
+    name: 'Juliana Costa',
+    location: 'Boa Vista, RR',
+    rating: 5,
+    text: '"Sem meia profundidade" é exatamente o que o texto da estampa prega. A Região Norte entende que fé e estilo andam juntos. Top demais.',
+    productName: 'Sem Meia Profundidade',
+    avatarInitials: 'JC',
+  },
+  {
+    id: 'test_005',
+    name: 'Mateus Oliveira',
+    location: 'Macapá, AP',
+    rating: 5,
+    text: 'Já era fã do ministério, mas quando vi a loja não tive dúvidas. Comprei três camisetas de uma vez. Qualidade streetwear mesmo, não é brincadeira.',
+    productName: 'Camiseta Fé Ativa',
+    avatarInitials: 'MO',
+  },
+  {
+    id: 'test_006',
+    name: 'Brenda Santos',
+    location: 'Rio Branco, AC',
+    rating: 5,
+    text: 'Chegou muito bem embalado, antes do prazo. O boné é lindo, discreto mas com identidade. Já estou de olho no Drop 02!',
+    productName: 'Boné Região Norte',
+    avatarInitials: 'BS',
+  },
+]
