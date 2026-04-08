@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { slugify } from '@/lib/utils'
-import type { Category } from '@prisma/client'
+type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
 
 const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
 
