@@ -22,7 +22,8 @@ export default async function Home() {
   return (
     <>
       <HeroSection />
-      {drop && <DropSection drop={drop as Awaited<ReturnType<typeof getActiveDrop>>} />}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {drop && <DropSection drop={drop as any} />}
       {featured && Array.isArray(featured) && featured.length > 0 && (
         <ProductsGrid
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

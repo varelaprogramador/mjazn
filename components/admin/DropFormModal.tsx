@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Modal from './Modal'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { createDropAction, updateDropAction } from '@/app/actions/drops'
 
 interface DropData {
@@ -26,13 +32,19 @@ function toDateInput(d: Date | string) {
   return new Date(d).toISOString().split('T')[0]
 }
 
-const inp = 'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
+const inp =
+  'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
 
 export default function DropFormModal({ drop, children }: Props) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+
+  function handleOpenChange(v: boolean) {
+    setOpen(v)
+    if (!v) setError('')
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -52,13 +64,28 @@ export default function DropFormModal({ drop, children }: Props) {
   }
 
   return (
-    <>
-      <div onClick={() => setOpen(true)} className="cursor-pointer">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger render={<span className="cursor-pointer" />}>
         {children}
-      </div>
+      </DialogTrigger>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={drop ? 'EDITAR DROP' : 'NOVO DROP'}>
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <DialogContent
+        showCloseButton={false}
+        className="!bg-[#111] !border !border-[#333] !text-white !max-w-lg !rounded-none !p-0 !gap-0 !ring-0"
+      >
+        <DialogHeader className="px-6 py-4 border-b border-[#333]">
+          <DialogTitle className="font-display text-sm tracking-widest text-white">
+            {drop ? 'EDITAR DROP' : 'NOVO DROP'}
+          </DialogTitle>
+          <button
+            onClick={() => setOpen(false)}
+            className="absolute right-4 top-4 text-gray-500 hover:text-white text-xl leading-none"
+          >
+            ×
+          </button>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           {drop && <input type="hidden" name="id" value={drop.id} />}
 
           <div className="space-y-1">
@@ -120,7 +147,7 @@ export default function DropFormModal({ drop, children }: Props) {
             </button>
           </div>
         </form>
-      </Modal>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }

@@ -2,7 +2,13 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import Modal from './Modal'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { createProductAction } from '@/app/actions/products'
 
 interface Drop { id: string; name: string }
@@ -16,7 +22,8 @@ const CATEGORIES = [
   { value: 'acessorios', label: 'Acessórios' },
 ]
 
-const inp = 'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
+const inp =
+  'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
 
 export default function ProductFormModal({ drops, children }: Props) {
   const [open, setOpen] = useState(false)
@@ -27,16 +34,15 @@ export default function ProductFormModal({ drops, children }: Props) {
   const router = useRouter()
   const formRef = useRef<HTMLFormElement>(null)
 
+  function handleOpenChange(v: boolean) {
+    setOpen(v)
+    if (!v) { setVariants([]); setError('') }
+  }
+
   function addVariant() {
     if (!nv.size.trim() || !nv.color.trim()) return
     setVariants(v => [...v, { ...nv }])
     setNv({ size: '', color: '', colorHex: '#000000', stock: 0 })
-  }
-
-  function handleClose() {
-    setOpen(false)
-    setVariants([])
-    setError('')
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,7 +56,7 @@ export default function ProductFormModal({ drops, children }: Props) {
       if (result?.error) {
         setError(result.error)
       } else {
-        handleClose()
+        setOpen(false)
         formRef.current?.reset()
         router.refresh()
       }
@@ -58,13 +64,28 @@ export default function ProductFormModal({ drops, children }: Props) {
   }
 
   return (
-    <>
-      <div onClick={() => setOpen(true)} className="cursor-pointer">
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger render={<span className="cursor-pointer" />}>
         {children}
-      </div>
+      </DialogTrigger>
 
-      <Modal open={open} onClose={handleClose} title="NOVO PRODUTO">
-        <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4">
+      <DialogContent
+        showCloseButton={false}
+        className="!bg-[#111] !border !border-[#333] !text-white !max-w-xl !rounded-none !p-0 !gap-0 !ring-0"
+      >
+        <DialogHeader className="px-6 py-4 border-b border-[#333]">
+          <DialogTitle className="font-display text-sm tracking-widest text-white">
+            NOVO PRODUTO
+          </DialogTitle>
+          <button
+            onClick={() => setOpen(false)}
+            className="absolute right-4 top-4 text-gray-500 hover:text-white text-xl leading-none"
+          >
+            ×
+          </button>
+        </DialogHeader>
+
+        <form ref={formRef} onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
 
           <div className="space-y-1">
             <label className="text-[10px] font-display tracking-widest text-gray-400 block">NOME *</label>
@@ -128,7 +149,6 @@ export default function ProductFormModal({ drops, children }: Props) {
           {/* Variantes */}
           <div className="space-y-2">
             <p className="text-[10px] font-display tracking-widest text-gray-400">VARIANTES *</p>
-
             <div className="flex gap-2 items-center">
               <input value={nv.size} onChange={e => setNv(v => ({ ...v, size: e.target.value }))}
                 placeholder="TAM" className="w-16 bg-black border border-[#333] text-white text-xs px-2 py-2 outline-none focus:border-orange-500" />
@@ -137,7 +157,7 @@ export default function ProductFormModal({ drops, children }: Props) {
               <input type="color" value={nv.colorHex} onChange={e => setNv(v => ({ ...v, colorHex: e.target.value }))}
                 className="w-9 h-9 border border-[#333] bg-black cursor-pointer p-0.5" />
               <input type="number" value={nv.stock} onChange={e => setNv(v => ({ ...v, stock: parseInt(e.target.value) || 0 }))}
-                placeholder="Qtd" min={0} className="w-16 bg-black border border-[#333] text-white text-xs px-2 py-2 outline-none focus:border-orange-500" />
+                min={0} className="w-16 bg-black border border-[#333] text-white text-xs px-2 py-2 outline-none focus:border-orange-500" />
               <button type="button" onClick={addVariant}
                 className="h-9 px-3 bg-orange-500/20 border border-orange-500/40 text-orange-500 text-[10px] font-display tracking-wider hover:bg-orange-500/30 transition-colors whitespace-nowrap">
                 + ADD
@@ -155,7 +175,7 @@ export default function ProductFormModal({ drops, children }: Props) {
                     <div className="flex items-center gap-3">
                       <span className="text-gray-500">{v.stock} un.</span>
                       <button type="button" onClick={() => setVariants(v => v.filter((_, idx) => idx !== i))}
-                        className="text-red-500/60 hover:text-red-400 text-base">×</button>
+                        className="text-red-500/60 hover:text-red-400 text-base leading-none">×</button>
                     </div>
                   </div>
                 ))}
@@ -172,7 +192,7 @@ export default function ProductFormModal({ drops, children }: Props) {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={handleClose}
+            <button type="button" onClick={() => setOpen(false)}
               className="flex-1 h-10 border border-[#333] text-gray-400 text-[10px] font-display tracking-widest hover:text-white transition-colors">
               CANCELAR
             </button>
@@ -182,7 +202,7 @@ export default function ProductFormModal({ drops, children }: Props) {
             </button>
           </div>
         </form>
-      </Modal>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }
