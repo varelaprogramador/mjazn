@@ -95,25 +95,31 @@ model Drop {
 // =============================================
 
 model Order {
-  id            String      @id @default(cuid())
-  status        OrderStatus @default(pending)
-  customerName  String
-  customerEmail String
-  customerPhone String
-  totalPrice    Int
-  street        String
-  number        String
-  complement    String?
-  neighborhood  String
-  city          String
-  state         String
-  zipCode       String
-  items         OrderItem[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id              String        @id @default(cuid())
+  status          OrderStatus   @default(pending)
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerCpf     String
+  totalPrice      Int
+  street          String
+  number          String
+  complement      String?
+  neighborhood    String
+  city            String
+  state           String
+  zipCode         String
+  paymentMethod   PaymentMethod @default(PIX)
+  paymentStatus   PaymentStatus @default(PENDING)
+  asaasPaymentId  String?
+  asaasCustomerId String?
+  items           OrderItem[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([status])
   @@index([createdAt])
+  @@index([asaasPaymentId])
 }
 
 model OrderItem {
@@ -138,6 +144,18 @@ enum OrderStatus {
   shipped
   delivered
   cancelled
+}
+
+enum PaymentMethod {
+  PIX
+  CREDIT_CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REFUNDED
 }
 
 // =============================================

@@ -25,6 +25,7 @@ export async function createOrder(data: {
   customerName: string
   customerEmail: string
   customerPhone: string
+  customerCpf: string
   totalPrice: number
   street: string
   number: string
@@ -33,6 +34,10 @@ export async function createOrder(data: {
   city: string
   state: string
   zipCode: string
+  paymentMethod?: 'PIX' | 'CREDIT_CARD'
+  paymentStatus?: 'PENDING' | 'CONFIRMED' | 'FAILED' | 'REFUNDED'
+  asaasPaymentId?: string
+  asaasCustomerId?: string
   items: {
     productId: string
     name: string
