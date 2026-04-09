@@ -74,7 +74,7 @@ export async function uploadCategoryImageAction(
   const file = formData.get('file') as File | null
   if (!file) return { error: 'Arquivo obrigatório.' }
   if (!file.type.startsWith('image/')) return { error: 'Arquivo deve ser uma imagem.' }
-  if (file.size > 5 * 1024 * 1024) return { error: 'Imagem deve ter no máximo 5MB.' }
+  if (file.size > 10 * 1024 * 1024) return { error: 'Imagem deve ter no máximo 10MB.' }
 
   try {
     const category = await prisma.productCategory.findUnique({ where: { id: categoryId } })
