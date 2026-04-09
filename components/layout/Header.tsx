@@ -5,7 +5,9 @@ import Image from 'next/image'
 import { useCart } from '@/context/CartContext'
 import { useEffect, useState } from 'react'
 
-export default function Header() {
+interface NavCategory { slug: string; name: string }
+
+export default function Header({ categories = [] }: { categories?: NavCategory[] }) {
   const { totalItems, openDrawer } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -41,15 +43,15 @@ export default function Header() {
           <Link href="/loja" className="text-xs font-display tracking-widest text-gray-muted hover:text-off-white transition-colors duration-200">
             Loja
           </Link>
-          <Link href="/loja?categoria=camisetas" className="text-xs font-display tracking-widest text-gray-muted hover:text-off-white transition-colors duration-200">
-            Camisetas
-          </Link>
-          <Link href="/loja?categoria=polos" className="text-xs font-display tracking-widest text-gray-muted hover:text-off-white transition-colors duration-200">
-            Polos
-          </Link>
-          <Link href="/loja?categoria=kits" className="text-xs font-display tracking-widest text-gray-muted hover:text-off-white transition-colors duration-200">
-            Kits
-          </Link>
+          {categories.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/loja?categoria=${cat.slug}`}
+              className="text-xs font-display tracking-widest text-gray-muted hover:text-off-white transition-colors duration-200"
+            >
+              {cat.name}
+            </Link>
+          ))}
         </nav>
 
         {/* Right Actions */}
@@ -98,20 +100,17 @@ export default function Header() {
       {menuOpen && (
         <div className="md:hidden bg-dark-mid border-t border-gray-border">
           <nav className="flex flex-col px-4 py-4 gap-4">
-            {[
-              { href: '/loja', label: 'Loja' },
-              { href: '/loja?categoria=camisetas', label: 'Camisetas' },
-              { href: '/loja?categoria=polos', label: 'Polos' },
-              { href: '/loja?categoria=kits', label: 'Kits' },
-              { href: '/loja?categoria=acessorios', label: 'Acessórios' },
-            ].map((link) => (
+            <Link href="/loja" onClick={() => setMenuOpen(false)} className="text-sm font-display tracking-widest text-gray-muted hover:text-off-white transition-colors">
+              Loja
+            </Link>
+            {categories.map((cat) => (
               <Link
-                key={link.href}
-                href={link.href}
+                key={cat.slug}
+                href={`/loja?categoria=${cat.slug}`}
                 onClick={() => setMenuOpen(false)}
                 className="text-sm font-display tracking-widest text-gray-muted hover:text-off-white transition-colors"
               >
-                {link.label}
+                {cat.name}
               </Link>
             ))}
           </nav>

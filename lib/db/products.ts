@@ -1,11 +1,10 @@
 import { prisma } from '@/lib/prisma'
-type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
 
 // ─── Buscar produto por slug ─────────────────────────────────────────────────
 export async function getProductBySlug(slug: string) {
   return prisma.product.findUnique({
     where: { slug },
-    include: { variants: { orderBy: { size: 'asc' } }, drop: true },
+    include: { variants: { orderBy: { size: 'asc' } }, drop: true, category: true },
   })
 }
 
@@ -13,7 +12,7 @@ export async function getProductBySlug(slug: string) {
 export async function getFeaturedProducts(limit = 8) {
   return prisma.product.findMany({
     where: { OR: [{ isNew: true }, { isLimited: true }] },
-    include: { variants: true },
+    include: { variants: true, category: true },
     orderBy: { createdAt: 'desc' },
     take: limit,
   })
@@ -21,17 +20,17 @@ export async function getFeaturedProducts(limit = 8) {
 
 // ─── Todos os produtos ────────────────────────────────────────────────────────
 export async function getAllProducts(opts?: {
-  category?: Category
+  categorySlug?: string
   dropId?: string
   take?: number
   skip?: number
 }) {
   return prisma.product.findMany({
     where: {
-      ...(opts?.category ? { category: opts.category } : {}),
+      ...(opts?.categorySlug ? { category: { slug: opts.categorySlug } } : {}),
       ...(opts?.dropId ? { dropId: opts.dropId } : {}),
     },
-    include: { variants: true },
+    include: { variants: true, category: true },
     orderBy: { createdAt: 'desc' },
     take: opts?.take,
     skip: opts?.skip,
@@ -42,7 +41,7 @@ export async function getAllProducts(opts?: {
 export async function getProductsByDrop(dropId: string) {
   return prisma.product.findMany({
     where: { dropId },
-    include: { variants: true },
+    include: { variants: true, category: true },
     orderBy: { createdAt: 'desc' },
   })
 }
@@ -50,7 +49,7 @@ export async function getProductsByDrop(dropId: string) {
 // ─── Slugs para generateStaticParams ─────────────────────────────────────────
 export async function getAllProductSlugs() {
   const products = await prisma.product.findMany({ select: { slug: true } })
-  return products.map((p) => ({ slug: p.slug }))
+  return products.map((p: { slug: string }) => ({ slug: p.slug }))
 }
 
 // ─── Criar produto ────────────────────────────────────────────────────────────
@@ -61,7 +60,7 @@ export async function createProduct(data: {
   originalPrice?: number
   description: string
   shortDescription: string
-  category: Category
+  categoryId: string
   images?: string[]
   isNew?: boolean
   isLimited?: boolean
@@ -75,7 +74,7 @@ export async function createProduct(data: {
       ...productData,
       variants: { create: variants },
     },
-    include: { variants: true },
+    include: { variants: true, category: true },
   })
 }
 
@@ -88,6 +87,7 @@ export async function updateProduct(
     originalPrice: number | null
     description: string
     shortDescription: string
+    categoryId: string
     images: string[]
     isNew: boolean
     isLimited: boolean
@@ -98,7 +98,7 @@ export async function updateProduct(
   return prisma.product.update({
     where: { id },
     data,
-    include: { variants: true },
+    include: { variants: true, category: true },
   })
 }
 
@@ -132,7 +132,7 @@ export async function getProductStats() {
         some: { stock: { gt: 0, lte: 5 } },
       },
     },
-    include: { variants: true },
+    include: { variants: true, category: true },
     take: 10,
   })
 

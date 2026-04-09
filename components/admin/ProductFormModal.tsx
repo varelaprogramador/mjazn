@@ -12,20 +12,14 @@ import {
 import { createProductAction } from '@/app/actions/products'
 
 interface Drop { id: string; name: string }
+interface Category { id: string; name: string; color: string }
 interface Variant { size: string; color: string; colorHex: string; stock: number }
-interface Props { drops: Drop[]; children: React.ReactNode }
-
-const CATEGORIES = [
-  { value: 'camisetas', label: 'Camisetas' },
-  { value: 'polos', label: 'Polos' },
-  { value: 'kits', label: 'Kits' },
-  { value: 'acessorios', label: 'Acessórios' },
-]
+interface Props { drops: Drop[]; categories: Category[] }
 
 const inp =
   'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
 
-export default function ProductFormModal({ drops, children }: Props) {
+export default function ProductFormModal({ drops, categories }: Props) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -65,8 +59,8 @@ export default function ProductFormModal({ drops, children }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<span className="cursor-pointer" />}>
-        {children}
+      <DialogTrigger className="h-9 px-5 bg-fire text-black font-display tracking-wider text-xs hover:bg-fire-light transition-colors">
+        + Novo Produto
       </DialogTrigger>
 
       <DialogContent
@@ -116,9 +110,11 @@ export default function ProductFormModal({ drops, children }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className="text-[10px] font-display tracking-widest text-gray-400 block">CATEGORIA *</label>
-              <select name="category" required className={inp}>
+              <select name="categoryId" required className={inp}>
                 <option value="">Selecione</option>
-                {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
               </select>
             </div>
             <div className="space-y-1">

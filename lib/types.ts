@@ -13,7 +13,7 @@ export interface Product {
   originalPrice?: number
   description: string
   shortDescription: string
-  category: 'camisetas' | 'polos' | 'kits' | 'acessorios'
+  category: { id: string; name: string; slug: string; color: string }
   images: string[]
   variants: ProductVariant[]
   rating: number

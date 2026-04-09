@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { getAllDrops } from '@/lib/db/drops'
+import { getAllCategories } from '@/lib/db/categories'
 import { formatPrice, getTotalStock } from '@/lib/utils'
 import { deleteProductAction } from '@/app/actions/products'
 import ImageUpload from '@/components/admin/ImageUpload'
@@ -17,12 +18,13 @@ export default async function AdminProdutoDetail({
 }) {
   const { id } = await params
 
-  const [product, drops] = await Promise.all([
+  const [product, drops, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
-      include: { variants: { orderBy: { size: 'asc' } }, drop: true },
+      include: { variants: { orderBy: { size: 'asc' } }, drop: true, category: true },
     }),
     getAllDrops(),
+    getAllCategories(),
   ])
 
   if (!product) notFound()
@@ -67,11 +69,8 @@ export default async function AdminProdutoDetail({
 
         {/* Info */}
         <div className="space-y-5">
-          {/* Dados visuais */}
           <div>
-            <p className="text-[10px] font-display tracking-widest text-gray-muted mb-1">
-              PRODUTO
-            </p>
+            <p className="text-[10px] font-display tracking-widest text-gray-muted mb-1">PRODUTO</p>
             <h1 className="font-display text-xl text-off-white">{product.name}</h1>
             <p className="text-xs text-gray-dim mt-0.5">{product.slug}</p>
           </div>
@@ -91,15 +90,13 @@ export default async function AdminProdutoDetail({
             )}
             <div>
               <p className="text-[10px] text-gray-muted">Estoque Total</p>
-              <p
-                className={`font-display ${totalStock === 0 ? 'text-red-400' : totalStock <= 5 ? 'text-fire' : 'text-off-white'}`}
-              >
+              <p className={`font-display ${totalStock === 0 ? 'text-red-400' : totalStock <= 5 ? 'text-fire' : 'text-off-white'}`}>
                 {totalStock} unidades
               </p>
             </div>
             <div>
               <p className="text-[10px] text-gray-muted">Categoria</p>
-              <p className="text-xs text-off-white capitalize">{product.category}</p>
+              <p className="text-xs text-off-white">{product.category.name}</p>
             </div>
           </div>
 
@@ -109,7 +106,6 @@ export default async function AdminProdutoDetail({
             {product.drop && <Badge label={product.drop.name} variant="dark" />}
           </div>
 
-          {/* Link loja */}
           <Link
             href={`/produto/${product.slug}`}
             target="_blank"
@@ -118,12 +114,11 @@ export default async function AdminProdutoDetail({
             Ver na Loja →
           </Link>
 
-          {/* Formulário de edição */}
-          <ProductEditForm product={product} drops={drops} />
+          <ProductEditForm product={product} drops={drops} categories={categories} />
         </div>
       </div>
 
-      {/* Variantes — linha completa */}
+      {/* Variantes */}
       <div className="border-t border-gray-border pt-6">
         <VariantManager productId={product.id} variants={product.variants} />
       </div>

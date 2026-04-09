@@ -1,37 +1,11 @@
 import Link from 'next/link'
+import { getAllCategories } from '@/lib/db/categories'
 
-const categories = [
-  {
-    slug: 'camisetas',
-    label: 'Camisetas',
-    description: 'Oversized & Regular Fit',
-    color: 'from-fire/20 via-dark to-dark',
-    accent: '#FF4D00',
-  },
-  {
-    slug: 'polos',
-    label: 'Polos',
-    description: 'Bordados Exclusivos',
-    color: 'from-gray-dim/30 via-dark to-dark',
-    accent: '#EAEAEA',
-  },
-  {
-    slug: 'kits',
-    label: 'Kits',
-    description: 'Conjuntos Especiais',
-    color: 'from-fire-light/15 via-dark to-dark',
-    accent: '#FF7A00',
-  },
-  {
-    slug: 'acessorios',
-    label: 'Acessórios',
-    description: 'Bonés & Mais',
-    color: 'from-gray-muted/20 via-dark to-dark',
-    accent: '#888888',
-  },
-]
+export default async function CategoryCards() {
+  const categories = await getAllCategories()
 
-export default function CategoryCards() {
+  if (categories.length === 0) return null
+
   return (
     <section className="bg-dark-mid py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
@@ -45,50 +19,66 @@ export default function CategoryCards() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {categories.map((cat) => (
             <Link
-              key={cat.slug}
+              key={cat.id}
               href={`/loja?categoria=${cat.slug}`}
               className="group relative block overflow-hidden aspect-[3/4] bg-dark"
             >
-              {/* Background gradient */}
-              <div
-                className={[
-                  'absolute inset-0 bg-gradient-to-b',
-                  cat.color,
-                  'transition-opacity duration-500 group-hover:opacity-80',
-                ].join(' ')}
-              />
+              {/* Imagem de fundo ou gradiente */}
+              {cat.image ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {/* Overlay escuro gradiente sobre a imagem */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                </>
+              ) : (
+                <>
+                  {/* Gradiente de fallback */}
+                  <div
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-dark to-dark transition-opacity duration-500 group-hover:opacity-80"
+                    style={{
+                      backgroundImage: `linear-gradient(to bottom, ${cat.color}33 0%, #111 60%, #111 100%)`,
+                    }}
+                  />
+                  {/* Grid pattern decorativo */}
+                  <div
+                    className="absolute inset-0 opacity-5"
+                    style={{
+                      backgroundImage: `
+                        linear-gradient(${cat.color}55 1px, transparent 1px),
+                        linear-gradient(90deg, ${cat.color}55 1px, transparent 1px)
+                      `,
+                      backgroundSize: '20px 20px',
+                    }}
+                  />
+                </>
+              )}
 
-              {/* Decorative accent line */}
+              {/* Linha de acento no topo no hover */}
               <div
                 className="absolute top-0 left-0 right-0 h-0.5 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500"
-                style={{ backgroundColor: cat.accent }}
+                style={{ backgroundColor: cat.color }}
               />
 
-              {/* Grid pattern */}
-              <div
-                className="absolute inset-0 opacity-5"
-                style={{
-                  backgroundImage: `
-                    linear-gradient(${cat.accent}33 1px, transparent 1px),
-                    linear-gradient(90deg, ${cat.accent}33 1px, transparent 1px)
-                  `,
-                  backgroundSize: '20px 20px',
-                }}
-              />
-
-              {/* Content */}
+              {/* Conteúdo */}
               <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-5">
                 <p
                   className="font-display text-[clamp(1.2rem,3vw,2rem)] leading-none text-off-white mb-1 transition-transform duration-300 group-hover:-translate-y-1"
                 >
-                  {cat.label}
+                  {cat.name}
                 </p>
-                <p className="text-[10px] font-display tracking-widest text-gray-muted">
-                  {cat.description}
-                </p>
+                {cat.description && (
+                  <p className="text-[10px] font-display tracking-widest text-gray-muted">
+                    {cat.description}
+                  </p>
+                )}
                 <div
                   className="mt-3 flex items-center gap-1 text-[10px] font-display tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ color: cat.accent }}
+                  style={{ color: cat.color }}
                 >
                   Ver Coleção
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

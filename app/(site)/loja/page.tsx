@@ -1,18 +1,8 @@
 import Link from 'next/link'
 import { getAllProducts } from '@/lib/db/products'
 import { getActiveDrop } from '@/lib/db/drops'
+import { getAllCategories } from '@/lib/db/categories'
 import ProductCard from '@/components/product/ProductCard'
-type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
-
-const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
-
-const categories = [
-  { value: '', label: 'Tudo' },
-  { value: 'camisetas', label: 'Camisetas' },
-  { value: 'polos', label: 'Polos' },
-  { value: 'kits', label: 'Kits' },
-  { value: 'acessorios', label: 'Acessórios' },
-]
 
 export default async function LojaPage({
   searchParams,
@@ -21,22 +11,21 @@ export default async function LojaPage({
 }) {
   const { categoria, drop: dropFilter } = await searchParams
 
-  const validCategory = VALID_CATEGORIES.includes(categoria as Category)
-    ? (categoria as Category)
-    : undefined
-
-  const [products, activeDrop] = await Promise.all([
+  const [products, activeDrop, categories] = await Promise.all([
     getAllProducts({
-      category: validCategory,
+      categorySlug: categoria || undefined,
       dropId: dropFilter,
     }),
     getActiveDrop(),
+    getAllCategories(),
   ])
+
+  const activeCategory = categories.find((c) => c.slug === categoria)
 
   const titleText = dropFilter
     ? 'Drop 01 — Marcados pelo Fogo'
-    : validCategory
-      ? validCategory.charAt(0).toUpperCase() + validCategory.slice(1)
+    : activeCategory
+      ? activeCategory.name
       : 'Coleção Completa'
 
   return (
@@ -79,12 +68,23 @@ export default async function LojaPage({
 
         {/* Category Filter */}
         <div className="flex flex-wrap gap-2 mb-8">
+          <Link
+            href="/loja"
+            className={[
+              'px-4 h-8 text-xs font-display tracking-widest border transition-all duration-150',
+              !categoria && !dropFilter
+                ? 'bg-fire text-black border-fire'
+                : 'border-gray-border text-gray-muted hover:border-fire hover:text-fire',
+            ].join(' ')}
+          >
+            Tudo
+          </Link>
           {categories.map((cat) => {
-            const isActive = (validCategory ?? '') === cat.value && !dropFilter
+            const isActive = categoria === cat.slug && !dropFilter
             return (
               <Link
-                key={cat.value}
-                href={cat.value ? `/loja?categoria=${cat.value}` : '/loja'}
+                key={cat.id}
+                href={`/loja?categoria=${cat.slug}`}
                 className={[
                   'px-4 h-8 text-xs font-display tracking-widest border transition-all duration-150',
                   isActive
@@ -92,7 +92,7 @@ export default async function LojaPage({
                     : 'border-gray-border text-gray-muted hover:border-fire hover:text-fire',
                 ].join(' ')}
               >
-                {cat.label}
+                {cat.name}
               </Link>
             )
           })}

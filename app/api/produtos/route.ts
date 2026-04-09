@@ -1,20 +1,13 @@
 import { getAllProducts, createProduct } from '@/lib/db/products'
-type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
-
-const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const categoria = searchParams.get('categoria')
-  const drop = searchParams.get('drop')
-
-  const validCategory = VALID_CATEGORIES.includes(categoria as Category)
-    ? (categoria as Category)
-    : undefined
+  const categoria = searchParams.get('categoria') ?? undefined
+  const drop = searchParams.get('drop') ?? undefined
 
   const products = await getAllProducts({
-    category: validCategory,
-    dropId: drop ?? undefined,
+    categorySlug: categoria,
+    dropId: drop,
   })
 
   return Response.json(products)

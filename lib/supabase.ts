@@ -48,6 +48,34 @@ export async function deleteProductImage(url: string): Promise<void> {
   await supabaseAdmin.storage.from(STORAGE_BUCKET).remove([path])
 }
 
+// ─── Upload de imagem de categoria ───────────────────────────────────────────
+export async function uploadCategoryImage(
+  file: File,
+  categorySlug: string
+): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const path = `categories/${categorySlug}/${Date.now()}.${ext}`
+
+  const { data, error } = await supabaseAdmin.storage
+    .from(STORAGE_BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (error) throw new Error(`Upload falhou: ${error.message}`)
+
+  const { data: urlData } = supabaseAdmin.storage
+    .from(STORAGE_BUCKET)
+    .getPublicUrl(data.path)
+
+  return urlData.publicUrl
+}
+
+// ─── Deletar imagem de categoria ─────────────────────────────────────────────
+export async function deleteCategoryImageFile(url: string): Promise<void> {
+  const path = url.split(`${STORAGE_BUCKET}/`)[1]
+  if (!path) return
+  await supabaseAdmin.storage.from(STORAGE_BUCKET).remove([path])
+}
+
 // ─── Gerar URL assinada (para acesso temporário se bucket for privado) ───────
 export async function getSignedUrl(path: string, expiresIn = 3600): Promise<string> {
   const { data, error } = await supabaseAdmin.storage

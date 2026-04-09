@@ -17,7 +17,19 @@ async function main() {
   await prisma.product.deleteMany()
   await prisma.drop.deleteMany()
   await prisma.testimonial.deleteMany()
+  await prisma.productCategory.deleteMany()
   console.log('🗑  Tabelas limpas')
+
+  // ─── Categorias ───────────────────────────────────────────────────────────
+  const cats = await Promise.all([
+    prisma.productCategory.create({ data: { name: 'Camisetas', slug: 'camisetas', color: '#FF4500' } }),
+    prisma.productCategory.create({ data: { name: 'Polos', slug: 'polos', color: '#FF8C00' } }),
+    prisma.productCategory.create({ data: { name: 'Kits', slug: 'kits', color: '#FF4500' } }),
+    prisma.productCategory.create({ data: { name: 'Acessórios', slug: 'acessorios', color: '#888888' } }),
+  ])
+  const catMap: Record<string, string> = {}
+  for (const c of cats) catMap[c.slug] = c.id
+  console.log('✅ Categorias criadas:', cats.length)
 
   // ─── Drop 01 ─────────────────────────────────────────────────────────────
   const drop = await prisma.drop.create({
@@ -43,7 +55,7 @@ async function main() {
       price: 14900,
       description: 'Camiseta oversized em algodão 100% premium com estampa "Chamas" na frente e "Região Norte" nas costas. Modelagem ampla, caimento perfeito.',
       shortDescription: 'Algodão premium oversized — estampa fogo exclusiva',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: true,
       isLimited: true,
@@ -63,7 +75,7 @@ async function main() {
       price: 19900,
       description: 'Polo premium com bordado exclusivo "RN" no peito. Caimento slim, tecido piquet de alta qualidade. Elegância urbana com identidade espiritual.',
       shortDescription: 'Piquet premium — bordado RN no peito',
-      category: 'polos' as const,
+      categoryId: catMap['polos'],
       images: [] as string[],
       isNew: true,
       isLimited: true,
@@ -83,7 +95,7 @@ async function main() {
       originalPrice: 17900,
       description: '"Sem meia profundidade" — uma declaração de comprometimento total. Camiseta oversized com estampa gráfica de alto impacto nas costas.',
       shortDescription: 'Oversized branca — estampa gráfica impacto total',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: false,
       isLimited: true,
@@ -102,7 +114,7 @@ async function main() {
       price: 21900,
       description: 'Polo exclusiva do DROP 01. Bordado "Marcados pelo Fogo" no peito. Caimento slim-fit, piquet premium. Edição extremamente limitada.',
       shortDescription: 'Polo premium limitada — bordado exclusivo DROP 01',
-      category: 'polos' as const,
+      categoryId: catMap['polos'],
       images: [] as string[],
       isNew: true,
       isLimited: true,
@@ -122,7 +134,7 @@ async function main() {
       originalPrice: 44700,
       description: 'O Kit Fogo é mais do que um conjunto — é um ponto de partida. Camiseta Oversized Chamas + Bíblia NVI Letra Grande + Devocional "Marcados pelo Fogo".',
       shortDescription: 'Camiseta + Bíblia NVI + Devocional — combo completo',
-      category: 'kits' as const,
+      categoryId: catMap['kits'],
       images: [] as string[],
       isNew: true,
       isLimited: true,
@@ -142,7 +154,7 @@ async function main() {
       price: 12900,
       description: 'Camiseta com gráfico "Fé Ativa" — a fé que move, age e transforma. Modelo regular fit em algodão penteado com estampa tipográfica bold.',
       shortDescription: 'Algodão penteado — tipografia bold exclusiva',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -160,7 +172,7 @@ async function main() {
       price: 12900,
       description: 'Para quem pertence a uma geração que não recua. Camiseta regular fit com estampa "Uma Geração em Chamas" — identidade e fogo em cada fio.',
       shortDescription: 'Regular fit — identidade de geração',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -178,7 +190,7 @@ async function main() {
       price: 8900,
       description: 'Boné dad hat com bordado "RN" na frente e "Região Norte" na lateral. Ajuste em couro sintético. Preto total — discrição com identidade.',
       shortDescription: 'Dad hat bordado — ajuste couro sintético',
-      category: 'acessorios' as const,
+      categoryId: catMap['acessorios'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -187,14 +199,13 @@ async function main() {
         { size: 'Único', color: 'Preto', colorHex: '#000000', stock: 25 },
       ],
     },
-    // ── Extras para encher a loja ────────────────────────────────────────
     {
       slug: 'camiseta-palavra-viva',
       name: 'Palavra Viva',
       price: 11900,
       description: 'Camiseta com verso bíblico em tipografia contemporânea. "A palavra de Deus é viva e eficaz" — arte minimalista, impacto máximo. Regular fit em algodão 100%.',
       shortDescription: 'Regular fit — verso tipográfico minimalista',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: true,
       isLimited: false,
@@ -215,7 +226,7 @@ async function main() {
       price: 13900,
       description: 'A Amazônia não é só paisagem — é chamado. Estampa oversized "Norte Profundo" com grafismo de raízes amazônicas. 100% algodão penteado, modelagem ampla.',
       shortDescription: 'Oversized — grafismo amazônico exclusivo',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: true,
       isLimited: false,
@@ -234,7 +245,7 @@ async function main() {
       price: 12900,
       description: 'Geração que clama, que ora e que age. Estampa "Avivamento" em lettering artístico na frente. Algodão 100%, regular fit confortável para o dia a dia.',
       shortDescription: 'Regular fit — lettering artístico frente',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -252,7 +263,7 @@ async function main() {
       price: 13900,
       description: 'O fogo que transforma vem de dentro. Camiseta cropped para o público feminino com estampa "Fogo Interior" e micro-logo nas costas. Algodão premium, corte moderno.',
       shortDescription: 'Cropped feminino — estampa exclusiva',
-      category: 'camisetas' as const,
+      categoryId: catMap['camisetas'],
       images: [] as string[],
       isNew: true,
       isLimited: false,
@@ -273,7 +284,7 @@ async function main() {
       price: 18900,
       description: 'A tensão entre a selva e o asfalto. Polo com bordado "RN" diferenciado no peito e detalhe na manga. Piquet premium, caimento regular. Para quem é de dois mundos.',
       shortDescription: 'Piquet premium — bordado detalhe manga',
-      category: 'polos' as const,
+      categoryId: catMap['polos'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -294,7 +305,7 @@ async function main() {
       price: 9900,
       description: 'Boné dad hat com bordado de chamas na frente e "Região Norte" na aba. Ajuste metálico dourado. Preto com detalhes laranja fogo.',
       shortDescription: 'Dad hat — bordado chamas com detalhe fogo',
-      category: 'acessorios' as const,
+      categoryId: catMap['acessorios'],
       images: [] as string[],
       isNew: true,
       isLimited: false,
@@ -309,7 +320,7 @@ async function main() {
       price: 12900,
       description: 'Mochila de nylon reforçado com bordado "RN" na frente. Capacidade 20L, compartimento para notebook 15". Preta total — funcional e com identidade.',
       shortDescription: 'Nylon reforçado 20L — bordado RN',
-      category: 'acessorios' as const,
+      categoryId: catMap['acessorios'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -325,7 +336,7 @@ async function main() {
       originalPrice: 34700,
       description: 'O ponto de partida para quem quer ir fundo. Camiseta Fé Ativa + Bíblia de Estudo NVI + Caneta premium. Para o discipulado do dia a dia.',
       shortDescription: 'Camiseta + Bíblia de Estudo + Caneta — trio do discípulo',
-      category: 'kits' as const,
+      categoryId: catMap['kits'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -343,7 +354,7 @@ async function main() {
       price: 6900,
       description: 'Carteira slim em couro sintético com logo "RN" em relevo. 8 slots para cartão, compartimento para notas. Preta minimalista — presente ideal.',
       shortDescription: 'Couro sintético slim — logo RN em relevo',
-      category: 'acessorios' as const,
+      categoryId: catMap['acessorios'],
       images: [] as string[],
       isNew: false,
       isLimited: false,
@@ -382,8 +393,3 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
-    console.error('❌ Erro no seed:', e)
-    process.exit(1)
-  })
-  .finally(() => prisma.$disconnect())

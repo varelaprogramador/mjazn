@@ -25,7 +25,6 @@ interface DropData {
 
 interface Props {
   drop?: DropData
-  children: React.ReactNode
 }
 
 function toDateInput(d: Date | string) {
@@ -35,7 +34,7 @@ function toDateInput(d: Date | string) {
 const inp =
   'w-full bg-black border border-[#333] text-white text-xs px-3 py-2 outline-none focus:border-orange-500 transition-colors placeholder:text-gray-600'
 
-export default function DropFormModal({ drop, children }: Props) {
+export default function DropFormModal({ drop }: Props) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -65,8 +64,8 @@ export default function DropFormModal({ drop, children }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger render={<span className="cursor-pointer" />}>
-        {children}
+      <DialogTrigger className="h-9 px-5 bg-fire text-black font-display tracking-wider text-xs hover:bg-fire-light transition-colors">
+        {drop ? 'Editar' : '+ Novo Drop'}
       </DialogTrigger>
 
       <DialogContent

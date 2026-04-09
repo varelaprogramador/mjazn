@@ -1,5 +1,12 @@
 import type { Product } from '@/lib/types'
 
+const CAT = {
+  camisetas: { id: 'cat_camisetas', name: 'Camisetas', slug: 'camisetas', color: '#FF4500' },
+  polos:     { id: 'cat_polos',     name: 'Polos',     slug: 'polos',     color: '#FF8C00' },
+  kits:      { id: 'cat_kits',      name: 'Kits',      slug: 'kits',      color: '#FF4500' },
+  acessorios:{ id: 'cat_acessorios',name: 'Acessórios',slug: 'acessorios',color: '#888888' },
+}
+
 export const products: Product[] = [
   {
     id: 'prod_001',
@@ -8,7 +15,7 @@ export const products: Product[] = [
     price: 14900,
     description: 'Camiseta oversized em algodão 100% premium com estampa "Chamas" na frente e "Região Norte" nas costas. Modelagem ampla, caimento perfeito. Uma peça que representa geração e propósito.',
     shortDescription: 'Algodão premium oversized — estampa fogo exclusiva',
-    category: 'camisetas',
+    category: CAT.camisetas,
     images: ['/images/products/camiseta-chamas-front.jpg', '/images/products/camiseta-chamas-back.jpg'],
     variants: [
       { size: 'P',   color: 'Preto', colorHex: '#000000', stock: 14 },
@@ -31,7 +38,7 @@ export const products: Product[] = [
     price: 19900,
     description: 'Polo premium com bordado exclusivo "RN" no peito. Caimento slim, tecido piquet de alta qualidade. Elegância urbana com identidade espiritual.',
     shortDescription: 'Piquet premium — bordado RN no peito',
-    category: 'polos',
+    category: CAT.polos,
     images: ['/images/products/polo-rn-front.jpg', '/images/products/polo-rn-back.jpg'],
     variants: [
       { size: 'P',  color: 'Preto', colorHex: '#000000', stock: 8  },
@@ -53,7 +60,7 @@ export const products: Product[] = [
     price: 12900,
     description: 'Camiseta com gráfico "Fé Ativa" — a fé que move, age e transforma. Modelo regular fit em algodão penteado com estampa tipográfica bold.',
     shortDescription: 'Algodão penteado — tipografia bold exclusiva',
-    category: 'camisetas',
+    category: CAT.camisetas,
     images: ['/images/products/camiseta-fe-front.jpg', '/images/products/camiseta-fe-back.jpg'],
     variants: [
       { size: 'P',  color: 'Preto', colorHex: '#000000', stock: 20 },
@@ -75,7 +82,7 @@ export const products: Product[] = [
     originalPrice: 17900,
     description: '"Sem meia profundidade" — uma declaração de comprometimento total. Camiseta oversized com estampa gráfica de alto impacto nas costas. Branca com detalhes em laranja fogo.',
     shortDescription: 'Oversized branca — estampa gráfica impacto total',
-    category: 'camisetas',
+    category: CAT.camisetas,
     images: ['/images/products/camiseta-smp-front.jpg', '/images/products/camiseta-smp-back.jpg'],
     variants: [
       { size: 'P',   color: 'Branco', colorHex: '#EAEAEA', stock: 5  },
@@ -97,7 +104,7 @@ export const products: Product[] = [
     price: 12900,
     description: 'Para quem pertence a uma geração que não recua. Camiseta regular fit com estampa "Uma Geração em Chamas" — identidade e fogo em cada fio.',
     shortDescription: 'Regular fit — identidade de geração',
-    category: 'camisetas',
+    category: CAT.camisetas,
     images: ['/images/products/camiseta-geracao-front.jpg', '/images/products/camiseta-geracao-back.jpg'],
     variants: [
       { size: 'P',  color: 'Preto', colorHex: '#000000', stock: 22 },
@@ -118,7 +125,7 @@ export const products: Product[] = [
     price: 21900,
     description: 'Polo exclusiva do DROP 01. Bordado "Marcados pelo Fogo" no peito. Caimento slim-fit, piquet premium. Edição extremamente limitada — uma vez esgotada, não volta.',
     shortDescription: 'Polo premium limitada — bordado exclusivo DROP 01',
-    category: 'polos',
+    category: CAT.polos,
     images: ['/images/products/polo-fogo-front.jpg', '/images/products/polo-fogo-back.jpg'],
     variants: [
       { size: 'P',  color: 'Preto', colorHex: '#000000', stock: 3 },
@@ -141,7 +148,7 @@ export const products: Product[] = [
     originalPrice: 44700,
     description: 'O Kit Fogo é mais do que um conjunto — é um ponto de partida. Camiseta Oversized Chamas + Bíblia NVI Letra Grande + Devocional "Marcados pelo Fogo". Para quem está pronto para a jornada.',
     shortDescription: 'Camiseta + Bíblia NVI + Devocional — combo completo',
-    category: 'kits',
+    category: CAT.kits,
     images: ['/images/products/kit-fogo-front.jpg', '/images/products/kit-fogo-detalhe.jpg'],
     variants: [
       { size: 'P',  color: 'Preto', colorHex: '#000000', stock: 10 },
@@ -163,7 +170,7 @@ export const products: Product[] = [
     price: 8900,
     description: 'Boné dad hat com bordado "RN" na frente e "Região Norte" na lateral. Ajuste em couro sintético. Preto total — discreção com identidade.',
     shortDescription: 'Dad hat bordado — ajuste couro sintético',
-    category: 'acessorios',
+    category: CAT.acessorios,
     images: ['/images/products/bone-front.jpg', '/images/products/bone-lateral.jpg'],
     variants: [
       { size: 'Único', color: 'Preto', colorHex: '#000000', stock: 25 },
@@ -180,8 +187,8 @@ export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug)
 }
 
-export function getProductsByCategory(category: Product['category']): Product[] {
-  return products.filter((p) => p.category === category)
+export function getProductsByCategory(categorySlug: string): Product[] {
+  return products.filter((p) => p.category.slug === categorySlug)
 }
 
 export function getProductsByDrop(dropId: string): Product[] {

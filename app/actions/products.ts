@@ -3,9 +3,6 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { slugify } from '@/lib/utils'
-type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
-
-const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
 
 export async function createProductAction(_: unknown, formData: FormData) {
   const name = (formData.get('name') as string)?.trim()
@@ -13,7 +10,7 @@ export async function createProductAction(_: unknown, formData: FormData) {
   const originalPriceRaw = formData.get('originalPrice') as string
   const description = (formData.get('description') as string)?.trim()
   const shortDescription = (formData.get('shortDescription') as string)?.trim()
-  const category = formData.get('category') as Category
+  const categoryId = (formData.get('categoryId') as string)?.trim()
   const isNew = formData.get('isNew') === 'on'
   const isLimited = formData.get('isLimited') === 'on'
   const dropId = (formData.get('dropId') as string)?.trim() || null
@@ -21,12 +18,8 @@ export async function createProductAction(_: unknown, formData: FormData) {
   const tags = tagsRaw ? tagsRaw.split(',').map((t) => t.trim()).filter(Boolean) : []
   const variantsJson = formData.get('variants') as string
 
-  if (!name || !description || !shortDescription || !category) {
+  if (!name || !description || !shortDescription || !categoryId) {
     return { error: 'Preencha todos os campos obrigatórios.' }
-  }
-
-  if (!VALID_CATEGORIES.includes(category)) {
-    return { error: 'Categoria inválida.' }
   }
 
   const price = Math.round(parseFloat(priceRaw) * 100)
@@ -59,7 +52,7 @@ export async function createProductAction(_: unknown, formData: FormData) {
         originalPrice,
         description,
         shortDescription,
-        category,
+        categoryId,
         isNew,
         isLimited,
         tags,
@@ -84,6 +77,7 @@ export async function updateProductAction(_: unknown, formData: FormData) {
   const originalPriceRaw = formData.get('originalPrice') as string
   const description = (formData.get('description') as string)?.trim()
   const shortDescription = (formData.get('shortDescription') as string)?.trim()
+  const categoryId = (formData.get('categoryId') as string)?.trim() || undefined
   const isNew = formData.get('isNew') === 'on'
   const isLimited = formData.get('isLimited') === 'on'
   const dropId = (formData.get('dropId') as string)?.trim() || null
@@ -102,7 +96,18 @@ export async function updateProductAction(_: unknown, formData: FormData) {
   try {
     await prisma.product.update({
       where: { id },
-      data: { name, price, originalPrice, description, shortDescription, isNew, isLimited, tags, dropId },
+      data: {
+        name,
+        price,
+        originalPrice,
+        description,
+        shortDescription,
+        isNew,
+        isLimited,
+        tags,
+        dropId,
+        ...(categoryId ? { categoryId } : {}),
+      },
     })
 
     revalidatePath(`/admin/produtos/${id}`)

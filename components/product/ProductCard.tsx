@@ -10,7 +10,7 @@ interface ProductCardProps {
     name: string
     price: number
     originalPrice?: number | null
-    category: string
+    category: { name: string; slug: string }
     images: string[]
     isNew: boolean
     isLimited: boolean
@@ -29,7 +29,7 @@ const categoryGradient: Record<string, string> = {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const totalStock = getTotalStock(product.variants)
-  const gradient = categoryGradient[product.category] ?? 'from-gray-dim/40 to-dark'
+  const gradient = categoryGradient[product.category.slug] ?? 'from-gray-dim/40 to-dark'
   const hasImages = product.images.length > 0
   const hasSecondImage = product.images.length > 1
   const discount = product.originalPrice
@@ -103,7 +103,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Info */}
       <div className="space-y-1.5">
         <p className="text-xs font-display tracking-widest text-gray-muted uppercase">
-          {product.category}
+          {product.category.name}
         </p>
         <p className="text-sm text-off-white group-hover:text-fire transition-colors duration-200 leading-snug">
           {product.name}

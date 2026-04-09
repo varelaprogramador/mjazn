@@ -15,11 +15,7 @@ export default async function AdminDrops() {
           <h1 className="font-display text-2xl text-off-white">Drops</h1>
           <p className="text-xs text-gray-muted mt-1">Gerenciar coleções e drops</p>
         </div>
-        <DropFormModal>
-          <button className="h-9 px-5 bg-fire text-black font-display tracking-wider text-xs hover:bg-fire-light transition-colors">
-            + Novo Drop
-          </button>
-        </DropFormModal>
+        <DropFormModal />
       </div>
 
       {drops.length === 0 ? (
@@ -56,11 +52,7 @@ export default async function AdminDrops() {
 
                   {/* Ações */}
                   <div className="flex items-center gap-4 flex-shrink-0 ml-4">
-                    <DropFormModal drop={drop}>
-                      <button className="text-[10px] font-display tracking-wider text-fire hover:text-fire-light transition-colors">
-                        Editar
-                      </button>
-                    </DropFormModal>
+                    <DropFormModal drop={drop} />
                     <DeleteButton
                       action={deleteDropAction.bind(null, drop.id)}
                       confirmMessage="Excluir este drop? Produtos vinculados serão desvinculados."

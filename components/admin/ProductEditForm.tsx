@@ -4,10 +4,8 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateProductAction } from '@/app/actions/products'
 
-interface Drop {
-  id: string
-  name: string
-}
+interface Drop { id: string; name: string }
+interface Category { id: string; name: string; color: string }
 
 interface Props {
   product: {
@@ -17,22 +15,17 @@ interface Props {
     originalPrice: number | null
     description: string
     shortDescription: string
+    categoryId: string
     isNew: boolean
     isLimited: boolean
     tags: string[]
     dropId: string | null
   }
   drops: Drop[]
+  categories: Category[]
 }
 
-const CATEGORIES = [
-  { value: 'camisetas', label: 'Camisetas' },
-  { value: 'polos', label: 'Polos' },
-  { value: 'kits', label: 'Kits' },
-  { value: 'acessorios', label: 'Acessórios' },
-]
-
-export default function ProductEditForm({ product, drops }: Props) {
+export default function ProductEditForm({ product, drops, categories }: Props) {
   const [open, setOpen] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -78,12 +71,7 @@ export default function ProductEditForm({ product, drops }: Props) {
             <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
               NOME *
             </label>
-            <input
-              name="name"
-              defaultValue={product.name}
-              required
-              className={inputCls}
-            />
+            <input name="name" defaultValue={product.name} required className={inputCls} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -92,13 +80,9 @@ export default function ProductEditForm({ product, drops }: Props) {
                 PREÇO (R$) *
               </label>
               <input
-                type="number"
-                name="price"
+                type="number" name="price"
                 defaultValue={(product.price / 100).toFixed(2)}
-                required
-                step="0.01"
-                min="0.01"
-                className={inputCls}
+                required step="0.01" min="0.01" className={inputCls}
               />
             </div>
             <div>
@@ -106,13 +90,9 @@ export default function ProductEditForm({ product, drops }: Props) {
                 PREÇO ORIGINAL (opcional)
               </label>
               <input
-                type="number"
-                name="originalPrice"
+                type="number" name="originalPrice"
                 defaultValue={product.originalPrice ? (product.originalPrice / 100).toFixed(2) : ''}
-                step="0.01"
-                min="0"
-                className={inputCls}
-                placeholder="—"
+                step="0.01" min="0" className={inputCls} placeholder="—"
               />
             </div>
           </div>
@@ -121,78 +101,61 @@ export default function ProductEditForm({ product, drops }: Props) {
             <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
               DESCRIÇÃO CURTA *
             </label>
-            <input
-              name="shortDescription"
-              defaultValue={product.shortDescription}
-              required
-              className={inputCls}
-            />
+            <input name="shortDescription" defaultValue={product.shortDescription} required className={inputCls} />
           </div>
 
           <div>
             <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
               DESCRIÇÃO COMPLETA *
             </label>
-            <textarea
-              name="description"
-              defaultValue={product.description}
-              required
-              rows={4}
-              className={`${inputCls} resize-none`}
-            />
+            <textarea name="description" defaultValue={product.description} required rows={4} className={`${inputCls} resize-none`} />
           </div>
 
-          <div>
-            <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
-              DROP (opcional)
-            </label>
-            <select name="dropId" defaultValue={product.dropId ?? ''} className={inputCls}>
-              <option value="">Nenhum</option>
-              {drops.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
+                CATEGORIA
+              </label>
+              <select name="categoryId" defaultValue={product.categoryId} className={inputCls}>
+                <option value="">Selecione</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
+                DROP (opcional)
+              </label>
+              <select name="dropId" defaultValue={product.dropId ?? ''} className={inputCls}>
+                <option value="">Nenhum</option>
+                {drops.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div>
             <label className="text-[10px] font-display tracking-widest text-gray-muted block mb-1">
               TAGS (separadas por vírgula)
             </label>
-            <input
-              name="tags"
-              defaultValue={product.tags.join(', ')}
-              className={inputCls}
-              placeholder="streetwear, logo, preto"
-            />
+            <input name="tags" defaultValue={product.tags.join(', ')} className={inputCls} placeholder="streetwear, logo, preto" />
           </div>
 
           <div className="flex gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="isNew"
-                defaultChecked={product.isNew}
-                className="w-4 h-4 accent-fire"
-              />
+              <input type="checkbox" name="isNew" defaultChecked={product.isNew} className="w-4 h-4 accent-fire" />
               <span className="text-xs font-display tracking-wider text-gray-muted">Novo</span>
             </label>
             <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="isLimited"
-                defaultChecked={product.isLimited}
-                className="w-4 h-4 accent-fire"
-              />
+              <input type="checkbox" name="isLimited" defaultChecked={product.isLimited} className="w-4 h-4 accent-fire" />
               <span className="text-xs font-display tracking-wider text-gray-muted">Limitado</span>
             </label>
           </div>
 
           {error && (
-            <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 px-3 py-2">
-              {error}
-            </p>
+            <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 px-3 py-2">{error}</p>
           )}
 
           {success && (
@@ -202,8 +165,7 @@ export default function ProductEditForm({ product, drops }: Props) {
           )}
 
           <button
-            type="submit"
-            disabled={isPending}
+            type="submit" disabled={isPending}
             className="w-full h-10 bg-fire text-black text-[10px] font-display tracking-widest hover:bg-fire-light transition-colors disabled:opacity-50"
           >
             {isPending ? 'SALVANDO...' : 'SALVAR ALTERAÇÕES'}

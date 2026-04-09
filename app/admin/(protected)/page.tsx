@@ -110,7 +110,7 @@ export default async function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-xs text-off-white">{p.name}</p>
-                  <p className="text-[10px] text-gray-muted">{p.category}</p>
+                  <p className="text-[10px] text-gray-muted">{p.category.name}</p>
                 </div>
               </div>
               <div className="text-right">

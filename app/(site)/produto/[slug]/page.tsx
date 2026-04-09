@@ -4,6 +4,7 @@ import { formatPrice, getTotalStock, getStockLabel } from '@/lib/utils'
 import Badge from '@/components/ui/Badge'
 import StarRating from '@/components/ui/StarRating'
 import ProductClientShell from '@/components/product/ProductClientShell'
+import ProductGallery from '@/components/product/ProductGallery'
 import type { Metadata } from 'next'
 
 export async function generateStaticParams() {
@@ -43,58 +44,20 @@ export default async function ProductPage({
     <div className="min-h-screen bg-black pt-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-          {/* Images */}
-          <div className="space-y-3">
-            {product.images.length > 0 ? (
-              <div className="relative aspect-[3/4] overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
-                  {product.isNew && <Badge label="Novo" variant="fire" />}
-                  {product.isLimited && <Badge label="Limitado" variant="white" />}
-                </div>
-              </div>
-            ) : (
-              <div className="relative aspect-[3/4] bg-dark flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-dim/40 to-dark" />
-                <span className="relative font-display text-6xl text-off-white/10 select-none">RN</span>
-                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
-                  {product.isNew && <Badge label="Novo" variant="fire" />}
-                  {product.isLimited && <Badge label="Limitado" variant="white" />}
-                </div>
-              </div>
-            )}
-
-            {/* Thumbnail row */}
-            {product.images.length > 1 && (
-              <div className="flex gap-2">
-                {product.images.map((img, i) => (
-                  <div
-                    key={i}
-                    className="w-16 h-20 bg-dark flex-shrink-0 overflow-hidden border border-gray-border"
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={img}
-                      alt={`${product.name} ${i + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Gallery */}
+          <ProductGallery
+            images={product.images}
+            name={product.name}
+            isNew={product.isNew}
+            isLimited={product.isLimited}
+          />
 
           {/* Product Info */}
           <div className="space-y-6">
             {/* Category + Drop */}
             <div className="flex items-center gap-2">
               <p className="text-[10px] font-display tracking-[0.4em] text-fire uppercase">
-                {product.category}
+                {product.category.name}
               </p>
               {product.dropId && (
                 <>
