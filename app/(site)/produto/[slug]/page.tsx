@@ -42,8 +42,8 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-black pt-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-8 lg:gap-12">
           {/* Gallery */}
           <ProductGallery
             images={product.images}

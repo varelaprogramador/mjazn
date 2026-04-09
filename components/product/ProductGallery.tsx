@@ -22,34 +22,36 @@ export default function ProductGallery({ images, name, isNew, isLimited }: Props
   return (
     <div className="space-y-3">
       {/* Main media */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-dark">
+      <div className="relative overflow-hidden bg-black">
         {current ? (
           isVideo(current) ? (
-            <video
-              key={current}
-              src={current}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            <div className="relative aspect-[3/4]">
+              <video
+                key={current}
+                src={current}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               key={current}
               src={current}
               alt={name}
-              className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+              className="w-full h-auto block transition-opacity duration-300"
             />
           )
         ) : (
-          <>
+          <div className="aspect-[3/4]">
             <div className="absolute inset-0 bg-gradient-to-br from-gray-dim/40 to-dark" />
             <span className="absolute inset-0 flex items-center justify-center font-display text-6xl text-off-white/10 select-none">
               RN
             </span>
-          </>
+          </div>
         )}
 
         {/* Badges */}
@@ -111,7 +113,7 @@ export default function ProductGallery({ images, name, isNew, isLimited }: Props
                 <img
                   src={url}
                   alt={`${name} ${i + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               )}
               {/* Active dot */}
