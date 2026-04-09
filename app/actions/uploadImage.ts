@@ -59,7 +59,7 @@ export async function deleteImageAction(
 
     if (product) {
       await updateProduct(productId, {
-        images: product.images.filter((img) => img !== imageUrl),
+        images: product.images.filter((img: string) => img !== imageUrl),
       })
     }
 
