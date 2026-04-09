@@ -1,5 +1,5 @@
 import { getAllProducts, createProduct } from '@/lib/db/products'
-import type { Category } from '@prisma/client'
+type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
 
 const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
 

@@ -1,5 +1,5 @@
 import { getAllOrders, createOrder } from '@/lib/db/orders'
-import type { OrderStatus } from '@prisma/client'
+type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 const VALID_STATUSES: OrderStatus[] = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
 

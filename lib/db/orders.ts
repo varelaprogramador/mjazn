@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import type { OrderStatus } from '@prisma/client'
+type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 // ─── Todos os pedidos ─────────────────────────────────────────────────────────
 export async function getAllOrders(opts?: { status?: OrderStatus; take?: number; skip?: number }) {

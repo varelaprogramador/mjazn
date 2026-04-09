@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import type { Category } from '@prisma/client'
+type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
 
 // ─── Buscar produto por slug ─────────────────────────────────────────────────
 export async function getProductBySlug(slug: string) {

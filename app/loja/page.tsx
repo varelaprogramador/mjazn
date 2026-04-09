@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { getAllProducts } from '@/lib/db/products'
 import { getActiveDrop } from '@/lib/db/drops'
 import ProductCard from '@/components/product/ProductCard'
-import type { Category } from '@prisma/client'
+type Category = 'camisetas' | 'polos' | 'kits' | 'acessorios'
 
 const VALID_CATEGORIES: Category[] = ['camisetas', 'polos', 'kits', 'acessorios']
 
