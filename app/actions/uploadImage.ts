@@ -14,12 +14,14 @@ export async function uploadImageAction(
     return { error: 'Arquivo e slug do produto são obrigatórios' }
   }
 
-  if (!file.type.startsWith('image/')) {
-    return { error: 'Arquivo deve ser uma imagem' }
+  const isImage = file.type.startsWith('image/')
+  const isVideo = file.type.startsWith('video/')
+  if (!isImage && !isVideo) {
+    return { error: 'Arquivo deve ser imagem ou vídeo' }
   }
 
   if (file.size > 10 * 1024 * 1024) {
-    return { error: 'Imagem deve ter no máximo 10MB' }
+    return { error: 'Arquivo deve ter no máximo 10MB' }
   }
 
   try {

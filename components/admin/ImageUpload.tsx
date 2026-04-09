@@ -10,6 +10,10 @@ interface ImageUploadProps {
   onImagesChange?: (images: string[]) => void
 }
 
+function isVideo(url: string) {
+  return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url)
+}
+
 export default function ImageUpload({
   productId,
   productSlug,
@@ -68,8 +72,23 @@ export default function ImageUpload({
         <div className="grid grid-cols-4 gap-2">
           {images.map((url, i) => (
             <div key={i} className="relative group aspect-square bg-dark overflow-hidden border border-gray-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`Imagem ${i + 1}`} className="w-full h-full object-cover" />
+              {isVideo(url) ? (
+                <>
+                  <video
+                    src={url}
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-1 right-1 bg-black/70 px-1.5 py-0.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-fire" />
+                    <span className="text-[8px] font-display text-fire">VID</span>
+                  </div>
+                </>
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={url} alt={`Mídia ${i + 1}`} className="w-full h-full object-cover" />
+              )}
               <button
                 onClick={() => handleDelete(url)}
                 className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs text-red-400 font-display tracking-wider"
@@ -91,7 +110,7 @@ export default function ImageUpload({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,video/mp4,video/webm,video/mov,video/quicktime"
           multiple
           onChange={handleFileChange}
           className="hidden"
@@ -112,7 +131,7 @@ export default function ImageUpload({
               ENVIANDO...
             </>
           ) : (
-            '+ ADICIONAR FOTOS'
+            '+ ADICIONAR FOTOS / VÍDEOS'
           )}
         </label>
       </div>
@@ -122,7 +141,7 @@ export default function ImageUpload({
       )}
 
       <p className="text-[10px] text-gray-dim">
-        JPG, PNG, WEBP · Máx. 5MB por imagem · A primeira imagem será a capa
+        JPG, PNG, WEBP, MP4, WEBM · Máx. 10MB · A primeira mídia será a capa
       </p>
     </div>
   )
