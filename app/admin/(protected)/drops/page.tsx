@@ -3,6 +3,8 @@ import { deleteDropAction } from '@/app/actions/drops'
 import DropFormModal from '@/components/admin/DropFormModal'
 import DeleteButton from '@/components/admin/DeleteButton'
 
+type DropItem = Awaited<ReturnType<typeof getAllDrops>>[number]
+
 export default async function AdminDrops() {
   const drops = await getAllDrops()
 
@@ -27,7 +29,7 @@ export default async function AdminDrops() {
         </div>
       ) : (
         <div className="space-y-4">
-          {drops.map((drop) => {
+          {drops.map((drop: DropItem) => {
             const percent =
               drop.stockLimit > 0
                 ? Math.round(
