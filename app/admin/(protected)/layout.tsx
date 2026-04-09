@@ -1,29 +1,16 @@
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { UserButton } from '@clerk/nextjs'
 
-async function logout() {
-  'use server'
-  const cookieStore = await cookies()
-  cookieStore.delete('rn-admin')
-  redirect('/admin/login')
-}
+const navLinks = [
+  { href: '/admin', label: 'Dashboard', icon: '📊' },
+  { href: '/admin/produtos', label: 'Produtos', icon: '👕' },
+  { href: '/admin/pedidos', label: 'Pedidos', icon: '📦' },
+  { href: '/admin/drops', label: 'Drops', icon: '🔥' },
+  { href: '/admin/categorias', label: 'Categorias', icon: '🏷️' },
+]
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies()
-  const isAdmin = cookieStore.get('rn-admin')?.value === 'true'
-
-  if (!isAdmin) redirect('/admin/login')
-
-  const navLinks = [
-    { href: '/admin', label: 'Dashboard', icon: '📊' },
-    { href: '/admin/produtos', label: 'Produtos', icon: '👕' },
-    { href: '/admin/pedidos', label: 'Pedidos', icon: '📦' },
-    { href: '/admin/drops', label: 'Drops', icon: '🔥' },
-    { href: '/admin/categorias', label: 'Categorias', icon: '🏷️' },
-  ]
-
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-dark-mid flex">
       {/* Sidebar */}
@@ -52,19 +39,22 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
 
-        <div className="p-3 border-t border-gray-border">
-          <form action={logout}>
-            <button
-              type="submit"
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-display tracking-wider text-gray-dim hover:text-fire transition-colors"
-            >
-              <span>↩</span>
-              Sair
-            </button>
-          </form>
+        <div className="p-3 border-t border-gray-border space-y-2">
+          {/* Clerk UserButton — avatar + menu de sair */}
+          <div className="flex items-center gap-2.5 px-3 py-2">
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: 'w-7 h-7',
+                },
+              }}
+            />
+            <span className="text-xs font-display tracking-wider text-gray-dim">Conta</span>
+          </div>
+
           <Link
             href="/"
-            className="flex items-center gap-2.5 px-3 py-2.5 text-xs font-display tracking-wider text-gray-dim hover:text-off-white transition-colors mt-1"
+            className="flex items-center gap-2.5 px-3 py-2.5 text-xs font-display tracking-wider text-gray-dim hover:text-off-white transition-colors"
           >
             <span>🌐</span>
             Ver Site
