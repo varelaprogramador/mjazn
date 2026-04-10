@@ -1,31 +1,18 @@
-import fs from 'fs'
-import nodePath from 'path'
-
-function readAsaasKey(): string {
-  // Lê o .env.local diretamente para evitar problemas com $ na chave
-  try {
-    const file = fs.readFileSync(nodePath.resolve(process.cwd(), '.env.local'), 'utf-8')
-    for (const line of file.split('\n')) {
-      const match = line.match(/^(?:NEXT_PUBLIC_)?ASAAS_API_KEY\s*=\s*['"]?(.+?)['"]?\s*$/)
-      if (match?.[1]) return match[1].trim()
-    }
-  } catch { /* ignora */ }
-  throw new Error('ASAAS_API_KEY não encontrada no .env.local')
+function getAsaasKey(): string {
+  const key = process.env.ASAAS_API_KEY ?? process.env.NEXT_PUBLIC_ASAAS_API_KEY
+  if (!key) throw new Error('ASAAS_API_KEY não configurada.')
+  return key
 }
-
-const ASAAS_API_KEY = readAsaasKey()
 
 async function asaasFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const apiKey = ASAAS_API_KEY
+  const apiKey = getAsaasKey()
   const baseUrl =
     process.env.ASAAS_ENVIRONMENT === 'production'
       ? 'https://api.asaas.com/v3'
       : 'https://sandbox.asaas.com/api/v3'
-
-  if (!apiKey) throw new Error('ASAAS_API_KEY não configurada.')
 
   const res = await fetch(`${baseUrl}${path}`, {
     ...options,
