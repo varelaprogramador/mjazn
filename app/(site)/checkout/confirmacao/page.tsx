@@ -1,30 +1,41 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { getOrderPixAction, type OrderPixResult } from '@/app/actions/order'
 
 function ConfirmacaoContent() {
   const params = useSearchParams()
 
   const orderId = params.get('orderId') ?? ''
   const method = params.get('method') ?? 'PIX'
-  const pixPayload = params.get('pixPayload') ?? ''
-  const pixImage = params.get('pixImage') ?? ''
-  const pixExpiry = params.get('pixExpiry') ?? ''
   const cardStatus = params.get('status') ?? ''
   const cardBrand = params.get('cardBrand') ?? ''
 
   const shortId = orderId.slice(-8).toUpperCase()
 
+  const [pixResult, setPixResult] = useState<OrderPixResult | null>(null)
+
+  useEffect(() => {
+    if (method === 'PIX' && orderId) {
+      getOrderPixAction(orderId).then(setPixResult)
+    }
+  }, [method, orderId])
+
   async function copyPix() {
+    const payload = pixResult?.success ? pixResult.pix.payload : ''
     try {
-      await navigator.clipboard.writeText(pixPayload)
+      await navigator.clipboard.writeText(payload)
       alert('Código PIX copiado!')
     } catch {
       /* ignora em ambientes sem clipboard */
     }
   }
+
+  const pixPayload = pixResult?.success ? pixResult.pix.payload : ''
+  const pixImage = pixResult?.success ? pixResult.pix.encodedImage : ''
+  const pixExpiry = pixResult?.success ? pixResult.pix.expirationDate : ''
 
   return (
     <div className="min-h-screen bg-black pt-16">
@@ -42,35 +53,47 @@ function ConfirmacaoContent() {
         {/* PIX */}
         {method === 'PIX' && (
           <div className="border border-gray-border bg-dark p-6 space-y-6">
-            <div className="text-center space-y-4">
-              {pixImage && (
-                <div className="inline-block bg-white p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`data:image/png;base64,${pixImage}`}
-                    alt="QR Code PIX"
-                    className="w-48 h-48 mx-auto"
-                  />
-                </div>
-              )}
-              <div>
-                <p className="text-xs text-gray-muted font-display tracking-widest mb-1">OU COPIE O CÓDIGO</p>
-                <div className="flex items-center gap-2 bg-black border border-gray-border p-3">
-                  <p className="text-xs text-off-white truncate flex-1 font-mono">{pixPayload}</p>
-                  <button
-                    onClick={copyPix}
-                    className="text-[10px] font-display tracking-widest text-fire border border-fire px-3 py-1.5 hover:bg-fire hover:text-black transition-colors whitespace-nowrap"
-                  >
-                    COPIAR
-                  </button>
-                </div>
+            {!pixResult && (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-8 h-8 border-2 border-fire border-t-transparent rounded-full animate-spin" />
               </div>
-              {pixExpiry && (
-                <p className="text-[10px] text-gray-muted">
-                  Expira em: {new Date(pixExpiry).toLocaleString('pt-BR')}
-                </p>
-              )}
-            </div>
+            )}
+
+            {pixResult && !pixResult.success && (
+              <p className="text-red-500 text-sm text-center">{pixResult.error}</p>
+            )}
+
+            {pixResult?.success && (
+              <div className="text-center space-y-4">
+                {pixImage && (
+                  <div className="inline-block bg-white p-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`data:image/png;base64,${pixImage}`}
+                      alt="QR Code PIX"
+                      className="w-48 h-48 mx-auto"
+                    />
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-gray-muted font-display tracking-widest mb-1">OU COPIE O CÓDIGO</p>
+                  <div className="flex items-center gap-2 bg-black border border-gray-border p-3">
+                    <p className="text-xs text-off-white truncate flex-1 font-mono">{pixPayload}</p>
+                    <button
+                      onClick={copyPix}
+                      className="text-[10px] font-display tracking-widest text-fire border border-fire px-3 py-1.5 hover:bg-fire hover:text-black transition-colors whitespace-nowrap"
+                    >
+                      COPIAR
+                    </button>
+                  </div>
+                </div>
+                {pixExpiry && (
+                  <p className="text-[10px] text-gray-muted">
+                    Expira em: {new Date(pixExpiry).toLocaleString('pt-BR')}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="border-t border-gray-border pt-4 space-y-2">
               <p className="text-xs text-gray-muted font-display tracking-widest">COMO PAGAR:</p>
@@ -78,7 +101,7 @@ function ConfirmacaoContent() {
                 <li>Abra o app do seu banco</li>
                 <li>Vá em PIX &rarr; Pagar com QR Code ou Copia e Cola</li>
                 <li>Escaneie o QR Code ou cole o código acima</li>
-                <li>Confirme o pagamento de <strong>{params.get('total') ?? 'o valor do pedido'}</strong></li>
+                <li>Confirme o pagamento</li>
               </ol>
             </div>
 

@@ -154,6 +154,7 @@ export default function CheckoutPage() {
         totalPrice,
         items: items.map((i) => ({
           productId: i.productId,
+          slug: i.slug,
           name: i.name,
           size: i.size,
           color: i.color,
@@ -189,14 +190,7 @@ export default function CheckoutPage() {
       clearCart()
 
       if (result.paymentMethod === 'PIX') {
-        const params = new URLSearchParams({
-          orderId: result.orderId,
-          method: 'PIX',
-          pixPayload: result.pix.payload,
-          pixImage: result.pix.encodedImage,
-          pixExpiry: result.pix.expirationDate,
-        })
-        router.push(`/checkout/confirmacao?${params.toString()}`)
+        router.push(`/checkout/confirmacao?orderId=${result.orderId}&method=PIX`)
       } else {
         const params = new URLSearchParams({
           orderId: result.orderId,

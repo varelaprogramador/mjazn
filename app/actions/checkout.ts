@@ -14,6 +14,7 @@ import { headers } from 'next/headers'
 
 export interface CheckoutItem {
   productId: string
+  slug?: string   // usado para resolver o ID real no banco
   name: string
   size: string
   color: string
@@ -81,7 +82,30 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
     const dueDate = todayPlusDays(1)
     const description = `Pedido MJAZN — ${input.items.map((i) => `${i.name} (${i.size})`).join(', ')}`
 
-    // 2. Cria pedido no banco com status pending
+    // 2. Resolve os IDs reais dos produtos no banco (evita FK violation com IDs do localStorage)
+    const resolvedItems = await Promise.all(
+      input.items.map(async (item) => {
+        // Tenta pelo ID direto
+        const byId = await prisma.product.findUnique({
+          where: { id: item.productId },
+          select: { id: true },
+        })
+        if (byId) return { ...item, productId: byId.id }
+
+        // Fallback: busca pelo slug
+        if (item.slug) {
+          const bySlug = await prisma.product.findUnique({
+            where: { slug: item.slug },
+            select: { id: true },
+          })
+          if (bySlug) return { ...item, productId: bySlug.id }
+        }
+
+        throw new Error(`Produto não encontrado: ${item.name}`)
+      })
+    )
+
+    // 3. Cria pedido no banco com status pending
     const order = await prisma.order.create({
       data: {
         customerName: input.customerName,
@@ -100,7 +124,7 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
         paymentStatus: 'PENDING',
         asaasCustomerId: customer.id,
         items: {
-          create: input.items.map((item) => ({
+          create: resolvedItems.map((item) => ({
             productId: item.productId,
             name: item.name,
             size: item.size,

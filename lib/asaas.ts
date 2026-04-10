@@ -1,19 +1,37 @@
-const ASAAS_BASE_URL =
-  process.env.ASAAS_ENVIRONMENT === 'production'
-    ? 'https://api.asaas.com/v3'
-    : 'https://sandbox.asaas.com/api/v3'
+import fs from 'fs'
+import nodePath from 'path'
 
-const ASAAS_API_KEY = process.env.ASAAS_API_KEY!
+function readAsaasKey(): string {
+  // Lê o .env.local diretamente para evitar problemas com $ na chave
+  try {
+    const file = fs.readFileSync(nodePath.resolve(process.cwd(), '.env.local'), 'utf-8')
+    for (const line of file.split('\n')) {
+      const match = line.match(/^(?:NEXT_PUBLIC_)?ASAAS_API_KEY\s*=\s*['"]?(.+?)['"]?\s*$/)
+      if (match?.[1]) return match[1].trim()
+    }
+  } catch { /* ignora */ }
+  throw new Error('ASAAS_API_KEY não encontrada no .env.local')
+}
+
+const ASAAS_API_KEY = readAsaasKey()
 
 async function asaasFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const res = await fetch(`${ASAAS_BASE_URL}${path}`, {
+  const apiKey = ASAAS_API_KEY
+  const baseUrl =
+    process.env.ASAAS_ENVIRONMENT === 'production'
+      ? 'https://api.asaas.com/v3'
+      : 'https://sandbox.asaas.com/api/v3'
+
+  if (!apiKey) throw new Error('ASAAS_API_KEY não configurada.')
+
+  const res = await fetch(`${baseUrl}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      access_token: ASAAS_API_KEY,
+      access_token: apiKey,
       ...options.headers,
     },
   })
@@ -185,11 +203,15 @@ export async function createCreditCardPayment(
     body: JSON.stringify({
       customer: input.customer,
       billingType: 'CREDIT_CARD',
-      value: input.value,
       dueDate: input.dueDate,
       description: input.description,
       externalReference: input.externalReference,
-      installmentCount: input.installmentCount ?? 1,
+      ...(input.installmentCount && input.installmentCount > 1
+        ? {
+            installmentCount: input.installmentCount,
+            installmentValue: parseFloat((input.value / input.installmentCount).toFixed(2)),
+          }
+        : { value: input.value }),
       creditCard: input.creditCard,
       creditCardHolderInfo: {
         name: input.creditCardHolderInfo.name,
