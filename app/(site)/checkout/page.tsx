@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/lib/utils'
 import { checkoutAction, type CheckoutResult } from '@/app/actions/checkout'
+import { getCheckoutPrefill } from '@/app/actions/customer'
 import { useRouter } from 'next/navigation'
+import { useSession } from '@/lib/auth-client'
 
 type PaymentMethod = 'PIX' | 'CREDIT_CARD'
 type Step = 'dados' | 'pagamento' | 'processando'
@@ -66,11 +68,33 @@ function formatExpiry(v: string) {
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart()
   const router = useRouter()
+  const { data: session } = useSession()
   const [isPending, startTransition] = useTransition()
   const [step, setStep] = useState<Step>('dados')
   const [method, setMethod] = useState<PaymentMethod>('PIX')
   const [form, setForm] = useState<FormState>(EMPTY)
   const [error, setError] = useState<string | null>(null)
+
+  // Pré-preenche formulário com dados salvos do cliente logado
+  useEffect(() => {
+    if (!session) return
+    getCheckoutPrefill().then((data) => {
+      if (!data) return
+      setForm((prev) => ({
+        ...prev,
+        name: data.user?.name ?? prev.name,
+        email: data.user?.email ?? prev.email,
+        phone: data.user?.phone ?? prev.phone,
+        zipCode: data.addr?.zipCode ?? prev.zipCode,
+        street: data.addr?.street ?? prev.street,
+        number: data.addr?.number ?? prev.number,
+        complement: data.addr?.complement ?? prev.complement,
+        neighborhood: data.addr?.neighborhood ?? prev.neighborhood,
+        city: data.addr?.city ?? prev.city,
+        state: data.addr?.state ?? prev.state,
+      }))
+    })
+  }, [session])
 
   const set = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let v = e.target.value

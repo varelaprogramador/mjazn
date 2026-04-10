@@ -10,6 +10,7 @@ import {
   todayPlusDays,
   type AsaasPixQrCode,
 } from '@/lib/asaas'
+import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 
 export interface CheckoutItem {
@@ -63,6 +64,11 @@ export type CheckoutResult =
 
 export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResult> {
   try {
+    // Verifica se há usuário logado para linkar o pedido
+    const hdrs = await headers()
+    const session = await auth.api.getSession({ headers: hdrs })
+    const userId = session?.user?.id ?? null
+
     // 1. Cria/encontra cliente no Asaas
     const customer = await findOrCreateCustomer({
       name: input.customerName,
@@ -108,6 +114,7 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
     // 3. Cria pedido no banco com status pending
     const order = await prisma.order.create({
       data: {
+        userId,
         customerName: input.customerName,
         customerEmail: input.customerEmail,
         customerPhone: input.customerPhone,
@@ -162,11 +169,11 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
     }
 
     // Cartão de crédito
-    const hdrs = await headers()
     const ip =
       hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ??
       hdrs.get('x-real-ip') ??
       '127.0.0.1'
+
 
     const cardPayment = await createCreditCardPayment({
       customer: customer.id,

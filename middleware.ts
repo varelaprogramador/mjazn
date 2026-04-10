@@ -2,23 +2,29 @@ import { betterFetch } from '@better-fetch/fetch'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { Session } from '@/lib/auth'
 
+const adminProtected = (p: string) =>
+  p.startsWith('/admin') && p !== '/admin/login'
+
+const customerProtected = (p: string) =>
+  p.startsWith('/conta') &&
+  p !== '/conta/login' &&
+  p !== '/conta/cadastro'
+
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Só protege rotas admin (exceto a página de login)
-  if (!pathname.startsWith('/admin') || pathname === '/admin/login') {
+  if (!adminProtected(pathname) && !customerProtected(pathname)) {
     return NextResponse.next()
   }
 
   const { data: session } = await betterFetch<Session>('/api/auth/get-session', {
     baseURL: request.nextUrl.origin,
-    headers: {
-      cookie: request.headers.get('cookie') ?? '',
-    },
+    headers: { cookie: request.headers.get('cookie') ?? '' },
   })
 
   if (!session) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+    const loginUrl = adminProtected(pathname) ? '/admin/login' : '/conta/login'
+    return NextResponse.redirect(new URL(loginUrl, request.url))
   }
 
   return NextResponse.next()
