@@ -21,7 +21,7 @@ const auth = betterAuth({
 })
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL ?? 'admin@regiaonorte.com'
+  const email = process.env.ADMIN_EMAIL ?? 'varelaryan278@gmail.com'
   const password = process.env.ADMIN_PASSWORD ?? 'RegNorte2025!'
   const name = 'Admin'
 

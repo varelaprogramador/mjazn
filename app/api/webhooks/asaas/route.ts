@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest } from 'next/server'
+import { sendEmail } from '@/lib/resend'
+import { paymentConfirmedEmail } from '@/lib/email-templates'
 
 // Eventos que o Asaas envia via webhook
 // Docs: https://docs.asaas.com/reference/webhooks
@@ -58,6 +60,19 @@ export async function POST(req: NextRequest) {
           })
         )
       )
+
+      // Envia email de pagamento confirmado
+      sendEmail({
+        to: order.customerEmail,
+        subject: `Pagamento confirmado — MJAZN #${order.id.slice(-8).toUpperCase()}`,
+        html: paymentConfirmedEmail({
+          orderId: order.id,
+          customerName: order.customerName,
+          totalPrice: order.totalPrice,
+          appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+        }),
+      }).catch((e) => console.error('[webhook/asaas] email confirmação:', e))
+
     } else if (event === 'PAYMENT_OVERDUE' || event === 'PAYMENT_DELETED') {
       await prisma.order.update({
         where: { id: order.id },

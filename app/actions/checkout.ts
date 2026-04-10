@@ -12,6 +12,8 @@ import {
 } from '@/lib/asaas'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { sendEmail } from '@/lib/resend'
+import { orderConfirmationEmail } from '@/lib/email-templates'
 
 export interface CheckoutItem {
   productId: string
@@ -160,6 +162,22 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
 
       const pix = await getPixQrCode(payment.id)
 
+      // Envia email de confirmação do pedido com código PIX
+      sendEmail({
+        to: input.customerEmail,
+        subject: `Pedido recebido — MJAZN #${order.id.slice(-8).toUpperCase()}`,
+        html: orderConfirmationEmail({
+          orderId: order.id,
+          customerName: input.customerName,
+          customerEmail: input.customerEmail,
+          paymentMethod: 'PIX',
+          totalPrice: input.totalPrice,
+          items: input.items,
+          pixPayload: pix.payload,
+          appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+        }),
+      }).catch((e) => console.error('[checkout] email PIX:', e))
+
       return {
         success: true,
         orderId: order.id,
@@ -218,6 +236,23 @@ export async function checkoutAction(input: CheckoutInput): Promise<CheckoutResu
     if (cardPayment.status === 'CONFIRMED') {
       await decrementStock(input.items)
     }
+
+    // Envia email de confirmação do pedido
+    sendEmail({
+      to: input.customerEmail,
+      subject: `Pedido recebido — MJAZN #${order.id.slice(-8).toUpperCase()}`,
+      html: orderConfirmationEmail({
+        orderId: order.id,
+        customerName: input.customerName,
+        customerEmail: input.customerEmail,
+        paymentMethod: 'CREDIT_CARD',
+        totalPrice: input.totalPrice,
+        items: input.items,
+        cardBrand: cardPayment.creditCard?.creditCardBrand,
+        installments: input.installments,
+        appUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+      }),
+    }).catch((e) => console.error('[checkout] email cartão:', e))
 
     return {
       success: true,
