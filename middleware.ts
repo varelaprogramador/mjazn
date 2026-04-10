@@ -1,16 +1,31 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { betterFetch } from '@better-fetch/fetch'
+import { NextResponse, type NextRequest } from 'next/server'
+import type { Session } from '@/lib/auth'
 
-const isAdminRoute = createRouteMatcher(['/admin(.*)'])
+export default async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isAdminRoute(req)) {
-    await auth.protect()
+  // Só protege rotas admin (exceto a página de login)
+  if (!pathname.startsWith('/admin') || pathname === '/admin/login') {
+    return NextResponse.next()
   }
-})
+
+  const { data: session } = await betterFetch<Session>('/api/auth/get-session', {
+    baseURL: request.nextUrl.origin,
+    headers: {
+      cookie: request.headers.get('cookie') ?? '',
+    },
+  })
+
+  if (!session) {
+    return NextResponse.redirect(new URL('/admin/login', request.url))
+  }
+
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
-    // Ignora arquivos estáticos e internos do Next.js
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     '/(api|trpc)(.*)',
   ],

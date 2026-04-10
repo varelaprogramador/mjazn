@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 import { signIn } from '@/lib/auth-client'
 
-export default function AdminLogin() {
+export default function ContaLogin() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,7 +18,11 @@ export default function AdminLogin() {
     setError(null)
     setLoading(true)
 
-    const { error: err } = await signIn.email({ email, password })
+    const { error: err } = await signIn.email({
+      email,
+      password,
+      callbackURL: '/conta',
+    })
 
     if (err) {
       setError('E-mail ou senha incorretos.')
@@ -25,47 +30,43 @@ export default function AdminLogin() {
       return
     }
 
-    router.push('/admin')
+    router.push('/conta')
     router.refresh()
   }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
-        <div className="flex flex-col items-center gap-1">
-          <Image
-            src="/logo-simbol.png"
-            alt="Região Norte"
-            width={120}
-            height={160}
-            className="h-20 w-auto"
-          />
-          <p className="text-[10px] font-display tracking-[0.4em] text-fire">ADMIN</p>
+
+        <div className="flex flex-col items-center gap-2">
+          <Link href="/">
+            <Image src="/logo-simbol.png" alt="Região Norte" width={80} height={107} className="h-14 w-auto opacity-90 hover:opacity-100 transition-opacity" />
+          </Link>
+          <p className="text-[10px] font-display tracking-[0.4em] text-fire">MINHA CONTA</p>
+        </div>
+
+        <div>
+          <h1 className="font-display text-2xl text-off-white text-center">Entrar</h1>
+          <p className="text-xs text-gray-muted text-center mt-1">Acompanhe seus pedidos e gerencie sua conta</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label htmlFor="email" className="text-[10px] font-display tracking-widest text-gray-muted">
-              E-mail
-            </label>
+            <label className="text-[10px] font-display tracking-widest text-gray-muted">E-MAIL</label>
             <input
-              id="email"
               type="email"
               required
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full h-11 bg-dark border border-gray-border px-4 text-sm text-off-white placeholder-gray-dim focus:outline-none focus:border-fire transition-colors"
-              placeholder="admin@exemplo.com"
+              placeholder="seu@email.com"
             />
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="password" className="text-[10px] font-display tracking-widest text-gray-muted">
-              Senha
-            </label>
+            <label className="text-[10px] font-display tracking-widest text-gray-muted">SENHA</label>
             <input
-              id="password"
               type="password"
               required
               autoComplete="current-password"
@@ -76,9 +77,7 @@ export default function AdminLogin() {
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-xs">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-xs">{error}</p>}
 
           <button
             type="submit"
@@ -89,8 +88,17 @@ export default function AdminLogin() {
           </button>
         </form>
 
-        <p className="text-center text-[10px] text-gray-dim">
-          Acesso restrito — equipe Região Norte
+        <p className="text-center text-xs text-gray-muted">
+          Ainda não tem conta?{' '}
+          <Link href="/conta/cadastro" className="text-fire hover:text-fire-light underline transition-colors">
+            Criar conta grátis
+          </Link>
+        </p>
+
+        <p className="text-center">
+          <Link href="/" className="text-[10px] text-gray-dim hover:text-gray-muted transition-colors">
+            ← Voltar à loja
+          </Link>
         </p>
       </div>
     </div>

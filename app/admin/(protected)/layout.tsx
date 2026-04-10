@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
-import { UserButton } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { signOut } from '@/lib/auth-client'
 
 const navLinks = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
@@ -11,6 +14,13 @@ const navLinks = [
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter()
+
+  async function handleSignOut() {
+    await signOut()
+    router.push('/admin/login')
+  }
+
   return (
     <div className="min-h-screen bg-dark-mid flex">
       {/* Sidebar */}
@@ -40,17 +50,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-3 border-t border-gray-border space-y-2">
-          {/* Clerk UserButton — avatar + menu de sair */}
-          <div className="flex items-center gap-2.5 px-3 py-2">
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: 'w-7 h-7',
-                },
-              }}
-            />
-            <span className="text-xs font-display tracking-wider text-gray-dim">Conta</span>
-          </div>
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-display tracking-wider text-gray-muted hover:text-red-400 hover:bg-dark transition-all duration-150 rounded-sm text-left"
+          >
+            <span>🚪</span>
+            Sair
+          </button>
 
           <Link
             href="/"
